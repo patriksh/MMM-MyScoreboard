@@ -454,11 +454,12 @@ Module.register("MMM-MyScoreboard",{
     }
 
     //add game status
+    var self = this;
     var status = document.createElement("div");
     status.classList.add("status");
     gameObj.status.forEach(function(s) {
       var statusPart = document.createElement("span");
-      statusPart.innerHTML = s;
+      statusPart.innerHTML = self.convertTimeString(s);
       status.appendChild(statusPart);
     });
     boxScore.appendChild(status);
@@ -706,6 +707,39 @@ Module.register("MMM-MyScoreboard",{
 
 
 
+  },
+  
+  convertTimeString: function(timeString) {
+    timeString = timeString.trim();
+
+    // Check if the input string is a valid time string
+    if (!/^\d{1,2}:\d{2} (am|pm)$/.test(timeString)) {
+      if(timeString === 'Full Time') {
+        return 'Kraj';
+      }
+
+      return timeString;
+    }
+
+    // Split the time string into hour, minute and period components
+    const [hourString, minuteString, period] = timeString.split(/[.: ]/);
+
+    // Parse the hour and minute as integers
+    const hour = parseInt(hourString, 10);
+    const minute = parseInt(minuteString, 10);
+
+    // Convert the hour to 24-hour format if the period is PM
+    if (period === 'pm' && hour !== 12) {
+      return `${hour + 12}:${minute.toString().padStart(2, '0')}`;
+    }
+
+    // Convert the hour to 00-hour format if the period is AM and hour is 12
+    if (period === 'am' && hour === 12) {
+      return `00:${minute.toString().padStart(2, '0')}`;
+    }
+
+    // Return the time string as is if it is already in 24-hour format
+    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
   },
 
   /*
